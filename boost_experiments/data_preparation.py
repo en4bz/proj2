@@ -21,7 +21,11 @@ from sklearn.grid_search import GridSearchCV
 from nltk import word_tokenize
 from nltk.stem import WordNetLemmatizer
 
-
+class LemmaTokenizer(object):
+    def __init__(self):
+        self.wnl = WordNetLemmatizer()
+    def __call__(self, doc):
+        return [self.wnl.lemmatize(t) for t in word_tokenize(doc)]
 
 
 db = sqlite3.connect("/Users/droy/Downloads/comp598.db")
@@ -51,11 +55,7 @@ train_target = np.array(train_target)
 train_data = np.array(train_data)
 train_target = np.array(train_target)
 
-class LemmaTokenizer(object):
-    def __init__(self):
-        self.wnl = WordNetLemmatizer()
-    def __call__(self, doc):
-        return [self.wnl.lemmatize(t) for t in word_tokenize(doc)]
+
 
 boost_clf = Pipeline([('vect', CountVectorizer()),
                      ('tfidf', TfidfTransformer()),
