@@ -22,6 +22,12 @@ with open("../../data/test_input.csv") as csvfile:
     for row in reader:
         test_data.append(row[1])
 
+class Unsparser(object):
+    def fit(self, X, y=None, **fit_params):
+        return self
+    def transform(self, X):
+        return X.toarray()
+
 svm_clf = Pipeline([('vect', CountVectorizer(stop_words="english", max_df=0.05)),
                    ('tfidf', TfidfTransformer()),
                    ('clf', SGDClassifier(loss="hinge",
