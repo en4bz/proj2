@@ -1,4 +1,8 @@
 \documentclass[10pt,twocolumn]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{listings}
 
 \title {Classification of Academic Papers based on Abstract Content}
 \author {Deepanjan Roy, Ian Forbes, Muntasir Chowdhury}
@@ -6,14 +10,39 @@
 
 \begin{document}
 \maketitle
+\twocolumn[
+\section{Abstract}
+We explore various machine learning methods for text classification. Using a set of approximately 100 000 abstracts, labelled into one of four topic, we try to accurately predict the topic of unseen abstract, solely based on their textual content. 
+\\
+\\
+]
+
 \section{Introduction}
 \section{Related Work}
-\section{Feature Extraction}
-\section{Feature Selection}
-\section{Algorithms Used}
+
+\section{Algorithms}
 \subsection{Naive Bayes}
 \subsubsection{Results}
-\subsection{K Nearest Neighbours}
+\subsection{K Nearest Neighbour}
+The K Nearest Neighbour algorithm (kNN) is a \textit{lazy} machine learning algorithm that can be used for both classification and regression tasks. For classification task, such as text classification, it classifies inputs by simply finding the nearest neighbour of the input in the training set based on some metric function $d(x_i,x_j)$ and outputs the label of that nearest neighbour. One of the algorithm's main parameters is $K$, the number of neighbours to consider. In the most simplistic version of the algorithm the majority label of the K nearest neighbours is selected. More complex methods use weighting functions based on the distance of the nearest neighbours, or their relative position in terms of distances, i.e. the first nearest neighbour is weight differently than $ith$ nearest neighbour based on $i$.
+\subsubsection{Features}
+We used binary valued vectors, as features. We tried different vector lengths from $2^{10}$ upto $2^{14}$.
+\subsubsection{Implementation}
+For our implementation we selected $d(x_i,x_j)$ to be number of element 2 given vectors have in common. In particular we took the bitwise and of the 2 given vectors the counted the number of bits that were set. The metric corresponds to the number of words that 2 given abstracts have in common. 
+
+Implemented in C++ the code for computing the distances looks similar to the following.
+
+\begin{lstlisting}
+// declare the length of the feature vector
+const size_t N = 2048;
+// create the bitsets
+std::bitset<N> a,b;
+// read bitstrings from stdin
+std::cin >> a >> b; 
+uint_t distance = (a & b).count();
+\end{lstlisting}
+\subsubsection{Optimizations}
+Using bitsets to represent feature vectors allows for various optimizations in terms of CPU and memory usage. Compared to the naive approach of using byte vectors, or integer vectors, we can reduce the amount memory needed to store the training and test set by factors of 8 and 32 respectively. This meant our algorithm never consumed more than 300MB of memory. Also the contiguous nature of bitsets meant the that all of the training sets could be in one large chunk of memory. Thus even though we need to preform a linear scan through all of the training set to compute the distances between each of the training examples and the test input this operation is still extremely fast, at least on new CPU with preteching. Due to CPU 
 \subsubsection{Results}
 \subsection{Support Vector Machine}
 \subsubsection{Results}
