@@ -1,4 +1,5 @@
 import csv
+import pickle
 import numpy as np
 import data_preparation as dp
 
@@ -33,11 +34,21 @@ multi_nb_clf = Pipeline([('vect', CountVectorizer(stop_words="english", max_df=0
                      ('clf', MultinomialNB()),
 ])
 
+rf_clf = Pipeline([('vect', CountVectorizer(stop_words="english", max_df=0.05, max_features=max_features)),
+                     ('tfidf', TfidfTransformer()),
+                     ('unsparse', Unsparser()),
+                     ('clf', RandomForestClassifier(n_estimators=n_estimators, n_jobs=-1)),
+])
+
 def generate_output(clf, clf_name):
     print "####################"
     print "Generating output for {0}".format(clf_name)
     print "Training classifier"
     clf.fit(data, targets)
+
+    print "Pickling classifiers for later use"
+    with open(pickled_{0}.csv.format(clf_name), "wb") as f:
+        pickle.dump(clf, f)
 
     print "Generating predictions"
     predicts = clf.predict(test_data)
@@ -51,3 +62,4 @@ def generate_output(clf, clf_name):
 
 generate_output(svm_clf, "SVM")
 generate_output(multi_nb_clf, "multi_NB")
+generate_output(rf_clf, "random_forest")
