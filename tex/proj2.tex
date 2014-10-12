@@ -30,7 +30,7 @@ We used binary valued vectors, as features. We tried different vector lengths fr
 \subsubsection{Implementation}
 For our implementation we selected $d(x_i,x_j)$ to be number of element 2 given vectors have in common. In particular we took the bitwise and of the 2 given vectors the counted the number of bits that were set. The metric corresponds to the number of words that 2 given abstracts have in common. 
 
-Implemented in C++ the code for computing the distances looks similar to the following.
+Implemented in C++ the code for computing the distances looks similar to the following. In order to store the binary feature vectors we used bitsets.
 
 \begin{lstlisting}
 // declare the length of the feature vector
@@ -42,8 +42,13 @@ std::cin >> a >> b;
 uint_t distance = (a & b).count();
 \end{lstlisting}
 \subsubsection{Optimizations}
-Using bitsets to represent feature vectors allows for various optimizations in terms of CPU and memory usage. Compared to the naive approach of using byte vectors, or integer vectors, we can reduce the amount memory needed to store the training and test set by factors of 8 and 32 respectively. This meant our algorithm never consumed more than 300MB of memory. Also the contiguous nature of bitsets meant the that all of the training sets could be in one large chunk of memory. Thus even though we need to preform a linear scan through all of the training set to compute the distances between each of the training examples and the test input this operation is still extremely fast, at least on new CPU with preteching. Due to CPU 
+Using bitsets to represent feature vectors allows for various optimizations in terms of CPU and memory usage. Compared to the naive approach of using byte vectors, or integer vectors, we can reduce the amount memory needed to store the training and test set by factors of 8 and 32 respectively. This meant our algorithm never consumed more than 300MB of memory. 
+
+Also the contiguous nature of bitsets meant the that all of the training sets could be in one large chunk of memory. This allows for allows for large speed up on newer machines with hardware prefeteching. In particular forward iteration over contiguous memory on machines with prefetching gives the illusion that the CPU has an infinite amount of cache.
+
+Another advantage of using bitsets is that the bitwise AND and the POPCNT instructions are implemented directly in hardware. In particular the POPCNT (population count) instruction which counts the number bits that are set to 1 in 64 bit integer (unsigned long) can replace a loop with bit shifting.
 \subsubsection{Results}
+We tested a large
 \subsection{Support Vector Machine}
 \subsubsection{Results}
 \section{Discussion}
