@@ -34,10 +34,10 @@ multi_nb_clf = Pipeline([('vect', CountVectorizer(stop_words="english", max_df=0
                      ('clf', MultinomialNB()),
 ])
 
-rf_clf = Pipeline([('vect', CountVectorizer(stop_words="english", max_df=0.05, max_features=max_features)),
+rf_clf = Pipeline([('vect', CountVectorizer(stop_words="english", max_df=0.05, max_features=1000)),
                      ('tfidf', TfidfTransformer()),
                      ('unsparse', Unsparser()),
-                     ('clf', RandomForestClassifier(n_estimators=n_estimators, n_jobs=-1)),
+                     ('clf', RandomForestClassifier(n_estimators=30, n_jobs=-1)),
 ])
 
 def generate_output(clf, clf_name):
@@ -47,7 +47,7 @@ def generate_output(clf, clf_name):
     clf.fit(data, targets)
 
     print "Pickling classifiers for later use"
-    with open(pickled_{0}.csv.format(clf_name), "wb") as f:
+    with open("pickled_{0}.pickle".format(clf_name), "wb") as f:
         pickle.dump(clf, f)
 
     print "Generating predictions"
