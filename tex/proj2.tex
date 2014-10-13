@@ -22,6 +22,7 @@ We explore various machine learning methods for text classification. Using a set
 
 \section{Algorithms}
 \subsection{Naive Bayes}
+We analysed two variations of the Naive Bayes classifier, Bernoulli and Multinomial. We implemented the Bernoulli classifier from scratch and used the Multinomial classier included in scikit-learn for comparison.
 \subsubsection{Results}
 \subsection{K Nearest Neighbour}
 The K Nearest Neighbour algorithm (kNN) is a \textit{lazy} machine learning algorithm that can be used for both classification and regression tasks. For classification task, such as text classification, it classifies inputs by simply finding the nearest neighbour of the input in the training set based on some metric function $d(x_i,x_j)$ and outputs the label of that nearest neighbour. One of the algorithm's main parameters is $K$, the number of neighbours to consider. In the most simplistic version of the algorithm the majority label of the K nearest neighbours is selected. More complex methods use weighting functions based on the distance of the nearest neighbours, or their relative position in terms of distances, i.e. the first nearest neighbour is weight differently than $ith$ nearest neighbour based on $i$.
