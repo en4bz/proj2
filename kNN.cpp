@@ -10,6 +10,8 @@
 #include <unordered_map>
 
 #include "threadpool.hpp"
+        
+typedef std::unordered_map<std::string,size_t> counter; 
 
 template <size_t N>
 class kNN {
@@ -62,29 +64,7 @@ public:
         return labels[cmp] == labels[index];
     }
 
-//     size_t predict(const size_t K) const{
-//         const size_t num_examples = labels.size();
-//         std::vector<char> dists(num_examples, -1);
-//         for(size_t i = 0; i < num_examples; i++){
-//             if(i == cmp) continue;
-//             dists[i] = (bits[cmp] & bits[i]).count();
-// 
-//         }
-//         typedef std::unordered_map<std::string,size_t> counter; 
-//         counter counts;
-//         for(size_t i = 0; i < n; i++){
-//             auto iter = std::max_element(dists.cbegin(), dists.cend());
-//             size_t idx = std::distance(dists.cbegin(), iter);
-//             dists[idx] = -1; // Remove the top result.
-//             counts[labels[idx]] += 1;
-//         }
-//         auto iter = std::max_element(counts.cbegin(), counts.cend(),
-//                 [](const counter::value_type& a, const counter::value_type& b){ return a.second < b.second; });
-// 
-//         return iter->first;
-//     }
-
-    bool validate_N(const size_t cmp, const size_t n) const{
+    std::string predict(const size_t cmp, const size_t K) const{
         const size_t num_examples = labels.size();
         std::vector<char> dists(num_examples, -1);
         for(size_t i = 0; i < num_examples; i++){
@@ -92,46 +72,63 @@ public:
             dists[i] = (bits[cmp] & bits[i]).count();
 
         }
-        typedef std::unordered_map<std::string,size_t> counter; 
         counter counts;
-        for(size_t i = 0; i < n; i++){
+        for(size_t i = 0; i < K; i++){
             auto iter = std::max_element(dists.cbegin(), dists.cend());
             size_t idx = std::distance(dists.cbegin(), iter);
             dists[idx] = -1; // Remove the top result.
-            counts[labels[idx]] += 1;
-//            std::cout << idx << std::endl;
+            counts[labels[idx]] += (K-i);
         }
         auto iter = std::max_element(counts.cbegin(), counts.cend(),
                 [](const counter::value_type& a, const counter::value_type& b){ return a.second < b.second; });
 
-        return labels[cmp] == iter->first;;
+        return iter->first;
+    }
+
+    bool validate_N(const size_t cmp, const size_t K) const{
+        const size_t num_examples = labels.size();
+        std::vector<char> dists(num_examples, -1);
+        for(size_t i = 0; i < num_examples; i++){
+            if(i == cmp) continue;
+            dists[i] = (bits[cmp] & bits[i]).count();
+
+        }
+        counter counts;
+        for(size_t i = 0; i < K; i++){
+            auto iter = std::max_element(dists.cbegin(), dists.cend());
+            size_t idx = std::distance(dists.cbegin(), iter);
+            dists[idx] = -1; // Remove the top result.
+            counts[labels[idx]] += (K-i);
+        }
+        auto iter = std::max_element(counts.cbegin(), counts.cend(),
+                [](const counter::value_type& a, const counter::value_type& b){ return a.second < b.second; });
+
+        return labels[cmp] == iter->first;
     }
 
 
-    double validate(const size_t num_threads, const size_t num_n) const{
-        int right = 0;
+    void validate(const size_t num_threads, const size_t K) const{
         const size_t num_examples = labels.size();
         for(size_t i = 0; i < num_examples; i += num_threads){
-            std::vector<std::future<bool>> futs;
+            std::vector<std::future<std::string>> futs;
             for(size_t j = 0; j < num_threads && i + j < num_examples; j++){
-                futs.push_back(std::async(std::launch::async, &kNN<N>::validate_N, this, i + j, num_n));
+                futs.push_back(std::async(std::launch::async, &kNN<N>::predict, this, i + j, K));
             }
-            for(auto& fut : futs){
-                if(fut.get()){
-                    right++;
-                }
+            for(size_t j = 0; j < num_threads; j++){
+                std::cout << labels[i+j] << "," << futs[j].get() << std::endl;
+                
             }
         }
-        return right / (double) num_examples;
+        return;
     }
     
-    double validate_pooled(const size_t num_n) const{
+    double validate_pooled(const size_t K) const{
         int right = 0;
         const size_t num_examples = labels.size();
         threadpool tp;
         std::vector<std::future<bool>> futs;
         for(size_t i = 0; i < num_examples; i++){
-            futs.push_back(tp.enqueue(&kNN<N>::validate_N, this, i, num_n));
+            futs.push_back(tp.enqueue(&kNN<N>::validate_N, this, i, K));
         }
         for(auto& fut : futs)
             if(fut.get()) right++;
@@ -145,7 +142,6 @@ public:
         for(size_t i = 0; i < num_examples; i++){
             dists[i] = (cmp & bits[i]).count();
         }
-        typedef std::unordered_map<std::string,size_t> counter; 
         counter counts;
         for(size_t i = 0; i < n; i++){
             auto iter = std::max_element(dists.cbegin(), dists.cend());
@@ -163,13 +159,13 @@ public:
         
     }
 
-    void test(const size_t num_threads, const size_t num_n) const{
+    void test(const size_t num_threads, const size_t K) const{
         std::cout << "\"id\",\"category\"" << std::endl;
         const size_t test_size = test_set.size();
         for(size_t i = 0; i < test_size; i += num_threads){
             std::vector<std::future<std::string>> futs;
             for(size_t j = 0; j < num_threads && i + j < test_size; j++){
-                futs.push_back(std::async(std::launch::async, &kNN<N>::test_N, this, test_set[i + j], num_n));
+                futs.push_back(std::async(std::launch::async, &kNN<N>::test_N, this, test_set[i + j], K));
             }
             for(size_t j = 0; j < futs.size(); j++){
                 std::cout << '"' << i + j << "\",\"" << futs[j].get() << '"' << std::endl;
@@ -197,8 +193,7 @@ int main(int argc, char* argv[]){
         std::cout << classifier.validate_pooled(K);
     }
     else {
-        double valid = classifier.validate(1,K);
-        std::cout << valid << std::endl;
+        classifier.validate(8,K);
     }
     return 0;
 }
