@@ -20,7 +20,6 @@ REGEX = r'[A-Za-z]{3,}'
 
 tokenizer = RegexpTokenizer(REGEX)
 stemmer = SnowballStemmer('english')
-wnl
 
 def token(doc):
     if use_stemming:
