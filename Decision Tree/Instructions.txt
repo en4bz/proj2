@@ -1,0 +1,4 @@
+The "train_input.csv" file needs to be in this folder.
+It was not included because of the large size.
+The file needs to be altered so that the category is also present ans is the second
+column.
