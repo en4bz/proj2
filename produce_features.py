@@ -9,7 +9,7 @@ MAX = 2 ** 12
 train_corpus = [x[0] for x in db.execute("SELECT content FROM abstracts ORDER BY id ASC;").fetchall()]
 # test_corpus = [x[0] for x in db.execute("SELECT content FROM test ORDER BY id ASC;").fetchall()]
                                                                                
-train = CountVectorizer(token_pattern=r'[A-Za-z]{3,}',max_features=MAX,stop_words='english',binary=True)
+train = CountVectorizer(token_pattern=r'[A-Za-z]{3,}',max_features=MAX,stop_words='english',binary=True, dtype=np.int32)
 X = train.fit_transform(train_corpus)                                           
 np.savetxt('features.txt', X.toarray(), '%d', '')                                 
                                                                                

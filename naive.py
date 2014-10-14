@@ -5,6 +5,7 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.stem.porter import PorterStemmer
 from nltk.stem.snowball import SnowballStemmer
 import numpy as np
+import csv 
 
 use_stemming = False
 
@@ -19,7 +20,7 @@ CLASSES = ['cs','math','stat','physics']
 REGEX = r'[A-Za-z]{3,}'
 
 tokenizer = RegexpTokenizer(REGEX)
-stemmer = SnowballStemmer('english')
+stemmer = None
 
 def token(doc):
     if use_stemming:
@@ -224,6 +225,22 @@ def print_results(num_features, test_start, test_end):
                                    classifier.get_accuracy(test_data, test_targets)
                                )
 
+def generate_test_predictions(test_input_file):
+    classifier = NaiveBayes(2)
+    classifier.train(classifier.abstracts, classifier.targets)
+    preds = []
+
+    with open(test_input_file) as f, open("output_brown_nb.csv", "w") as outf:
+        reader = csv.reader(f, delimiter=',', quotechar='"')
+        writer = csv.writer(outf, delimiter=',', quotechar='"')
+        reader.next()
+        writer.writerow(["id", "category"])
+        for row in reader:
+            writer.writerow([row[0], classifier.predict(row[1])])
+
+    print "Wrote ouput at output_brown_nb.csv"
+
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -247,6 +264,15 @@ if __name__ == '__main__':
             use_stemming = True
 
         print_results(num_features, test_start, test_end)
+
+    elif sys.argv[1] == 'generate_test_predictions':
+        try:
+            generate_test_predictions(sys.argv[2])
+        except:
+            print "Unkown error"
+            print "Usage: python {0} generate_test_predictions <test_input_path>".format(sys.argv[0])
+            raise
+
     else:
         classifier = NaiveBayes(3000)
         #print 'Train'
