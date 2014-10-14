@@ -10,6 +10,7 @@ import numpy as np
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_selection import chi2
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.ensemble import AdaBoostClassifier
@@ -82,6 +83,13 @@ svm_clf = Pipeline([('vect', CountVectorizer(stop_words="english", max_df=0.05))
 bern_nb_clf = Pipeline([('vect', CountVectorizer(stop_words="english", max_df=0.8)),
                      ('tfidf', TfidfTransformer()),
                      ('clf', BernoulliNB()),
+])
+
+chi2_svm_clf = Pipeline([('vect', CountVectorizer(stop_words="english", max_df=0.05)),
+                   ('tfidf', TfidfTransformer()),
+                   ('clf', SGDClassifier(loss="hinge",
+                   penalty='l2', alpha=1e-3,
+                   n_iter=5))
 ])
 
 
