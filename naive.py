@@ -20,7 +20,7 @@ CLASSES = ['cs','math','stat','physics']
 REGEX = r'[A-Za-z]{3,}'
 
 tokenizer = RegexpTokenizer(REGEX)
-stemmer = SnowballStemmer('english')
+stemmer = None
 
 def token(doc):
     if use_stemming:
