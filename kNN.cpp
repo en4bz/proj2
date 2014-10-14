@@ -10,7 +10,10 @@
 #include <unordered_map>
 
 #include "threadpool.hpp"
-        
+
+#define NF 17
+
+
 typedef std::unordered_map<std::string,size_t> counter; 
 
 template <size_t N>
@@ -89,7 +92,7 @@ public:
         const size_t num_examples = labels.size();
         std::vector<char> dists(num_examples, -1);
         for(size_t i = 0; i < num_examples; i++){
-            if(i == cmp) continue;
+            if(i == cmp) continue; // Leave One Out
             dists[i] = (bits[cmp] & bits[i]).count();
 
         }
@@ -116,7 +119,6 @@ public:
             }
             for(size_t j = 0; j < num_threads; j++){
                 std::cout << labels[i+j] << "," << futs[j].get() << std::endl;
-                
             }
         }
         return;
@@ -155,10 +157,6 @@ public:
         return iter->first;
     }
 
-    void cross_validate(const size_t n_folds){
-        
-    }
-
     void test(const size_t num_threads, const size_t K) const{
         std::cout << "\"id\",\"category\"" << std::endl;
         const size_t test_size = test_set.size();
@@ -183,7 +181,8 @@ int main(int argc, char* argv[]){
         return 2;
     }
     //load data 
-    kNN<4096> classifier;
+    const size_t N = NF;
+    kNN<N> classifier;
     classifier.train(argv[3]);
     if( std::string(argv[2]) == "test") {
         classifier.load_test_set("test.out");
