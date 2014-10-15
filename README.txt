@@ -6,6 +6,19 @@
  |_|  |_| |_|    (_)   |____/  |_|     \___/    \_/\_/   |_| |_| |___/
                                                                       
 
+
+## Naive Bayes
+
+You need to produce an sqlite database first.
+    $ python generate_db.py /path/to/train_input.csv /path/to/train_output.csv
+
+Now run this command to generate the predictions on test input:
+    $ python naive.py generate_test_predictions /path/to/test_input.csv
+
+For more command line options of naive.py, consult the source.
+
+## KNN
+
 * Producing kNN Train Set
 
     $ python produce_features.py
@@ -35,6 +48,36 @@ Where K is the number of neighbours to to use and feature_file is the output
 of feature creation step. If everything works properly a.out should print 
 "Loaded 96210 training examples" to stderr when it starts running.
 
-This will take anywhere from 30 minutes to 3hours of CPU time depending on the
+This will take anywhere from 30 minutes to 3 hours of CPU time depending on the
 feature length. Divide the CPU time by the number of cores your machine has to
-get an esitmate of the true run time.
+get an estimate of the true run time.
+
+## Decision Tree
+
+Consult Instructions.txt in the "Decision Tree" directory.
+
+## Kaggle Classifier
+
+For our Kaggle submission, we independently generated the predictions from
+different classifiers, and then aggregated the results using
+output_aggregator.py. 
+
+    $ python output_aggregator.py [PATHS TO OUTPUT CSV FILES]
+
+For the final Kaggle submission, we included predictions from three scikit-learn
+classifiers. These predictions can be generated with the generate_test_out.py
+script in the experiments directory.
+    
+    $ cd experiments
+    $ python generate_test_out.py
+
+If you get complains about sqlite database you may need to generate the
+database. See the section for Naive Bayes near the top. 
+
+
+## Experiments directory
+
+The experiments directory includes code for the various features we tried out
+from scikit-learn, and the implementation of an adaboost classifier that was
+too computationally expensive to use. 
+
